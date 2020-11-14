@@ -27,6 +27,7 @@ RSpec.configure do |config|
   config.include SessionHelper, type: :view
   config.include SessionHelper, type: :request
   config.include Organizational, type: :view
+  config.include CssHelpers
   config.after do
     Warden.test_reset!
   end
@@ -47,4 +48,6 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = "#{::Rails.root}/tmp/persistent_examples.txt"
 
   config.filter_rails_from_backtrace!
+
+  config.disable_monkey_patching!
 end

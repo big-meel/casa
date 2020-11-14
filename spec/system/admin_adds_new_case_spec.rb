@@ -27,6 +27,8 @@ RSpec.describe "admin adds a new case", type: :system do
       check "Transition aged youth"
       has_checked_field? "Transition aged youth"
 
+      select "Submitted", from: "casa_case_court_report_status"
+
       click_on "Create CASA Case"
 
       expect(page.body).to have_content(case_number)
@@ -54,7 +56,7 @@ RSpec.describe "admin adds a new case", type: :system do
     it "does not create a new case" do
       click_on "Create CASA Case"
 
-      expect(current_path).to eq(casa_cases_path)
+      expect(page).to have_current_path(casa_cases_path, ignore_query: true)
       expect(page).to have_content("Case number can't be blank")
     end
   end
@@ -66,7 +68,7 @@ RSpec.describe "admin adds a new case", type: :system do
       fill_in "Case number", with: case_number
       click_on "Create CASA Case"
 
-      expect(current_path).to eq(casa_cases_path)
+      expect(page).to have_current_path(casa_cases_path, ignore_query: true)
       expect(page).to have_content("Case number has already been taken")
     end
   end

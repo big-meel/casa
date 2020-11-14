@@ -4,13 +4,16 @@
 // that code so it'll be compiled.
 
 // this is how stylesheets are loaded into the running application
+
 import 'src/stylesheets/application.scss'
 
 import 'bootstrap'
 import 'bootstrap-select'
+import '../sweet-alert-confirm'
 require('@rails/ujs').start()
 require('@rails/activestorage').start()
 require('channels')
+
 require('jquery')
 require('bootstrap-datepicker')
 require('datatables.net-dt')
@@ -22,7 +25,6 @@ require('src/case_contact')
 require('src/select')
 require('src/dashboard')
 require('src/sidebar')
-require('src/index_reports')
 require('src/sessions')
 
 // Uncomment to copy all static images under ../images to the output folder and

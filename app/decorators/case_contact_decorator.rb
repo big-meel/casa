@@ -5,6 +5,9 @@ class CaseContactDecorator < Draper::Decorator
   # - `N` minutes
   # - `N` hours `M` minutes
   # - `N` hours
+
+  NOTES_WORD_LIMIT = 100
+
   def duration_minutes
     minutes = object.duration_minutes
 
@@ -41,13 +44,13 @@ class CaseContactDecorator < Draper::Decorator
   end
 
   def contact_types
-    object.db_contact_types
+    object.contact_types
       &.map { |ct| ct.name }
       &.to_sentence(last_word_connector: ", and ") || ""
   end
 
   def report_contact_types
-    object.db_contact_types&.map { |ct| ct.name }&.join("|")
+    object.contact_types&.map { |ct| ct.name }&.join("|")
   end
 
   def medium_type
@@ -69,5 +72,9 @@ class CaseContactDecorator < Draper::Decorator
     else
       object.medium_type
     end
+  end
+
+  def notes
+    object.notes.to_s.truncate(NOTES_WORD_LIMIT)
   end
 end

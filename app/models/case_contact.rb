@@ -19,8 +19,7 @@ class CaseContact < ApplicationRecord
   belongs_to :casa_case
 
   has_many :case_contact_contact_type
-  # TODO: Rename this relation to `contact_types` when the column with the same name is droped
-  has_many :db_contact_types, through: :case_contact_contact_type, source: :contact_type
+  has_many :contact_types, through: :case_contact_contact_type, source: :contact_type
 
   accepts_nested_attributes_for :case_contact_contact_type
 
@@ -42,10 +41,15 @@ class CaseContact < ApplicationRecord
   scope :want_driving_reimbursement, ->(want_driving_reimbursement = nil) {
     where(want_driving_reimbursement: want_driving_reimbursement) if want_driving_reimbursement == true || want_driving_reimbursement == false
   }
-  scope :contact_type, ->(contact_type = nil) {
-    if contact_type.present?
-      joins(:db_contact_types)
-        .where("contact_types.name in (?)", contact_type)
+  scope :contact_type, ->(contact_type_ids = nil) {
+    includes(:contact_types).where("contact_types.id": [contact_type_ids]) if contact_type_ids.present?
+  }
+  scope :contact_type_groups, ->(contact_type_group_ids = nil) {
+    # to handle case when passing ids == [''] && ids == nil
+    if contact_type_group_ids&.join&.length&.positive?
+      joins(contact_types: :contact_type_group)
+        .where(contact_type_groups: {id: contact_type_group_ids})
+        .group(:id)
     end
   }
 
@@ -80,15 +84,15 @@ class CaseContact < ApplicationRecord
     !contact_made.nil?
   end
 
-  def allowed_edit?
+  def created_in_current_quarter?
     today = Time.zone.now
     occurred_at.end_of_quarter > today
   end
 
   def check_if_allow_edit
-    return if allowed_edit?
+    return if created_in_current_quarter?
 
-    errors[:base] << "cannot edit past case contacts outside of quarter"
+    errors[:base] << "cannot edit case contacts created before the current quarter"
   end
 
   def supervisor_id
@@ -106,7 +110,6 @@ end
 #
 #  id                         :bigint           not null, primary key
 #  contact_made               :boolean          default(FALSE)
-#  contact_types              :string           is an Array
 #  duration_minutes           :integer          not null
 #  medium_type                :string
 #  miles_driven               :integer          default(0), not null
@@ -120,9 +123,8 @@ end
 #
 # Indexes
 #
-#  index_case_contacts_on_casa_case_id   (casa_case_id)
-#  index_case_contacts_on_contact_types  (contact_types) USING gin
-#  index_case_contacts_on_creator_id     (creator_id)
+#  index_case_contacts_on_casa_case_id  (casa_case_id)
+#  index_case_contacts_on_creator_id    (creator_id)
 #
 # Foreign Keys
 #

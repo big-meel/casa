@@ -34,7 +34,19 @@ class CasaCasePolicy
     user.is_a?(Supervisor)
   end
 
+  def update_case_status?
+    user.is_a?(CasaAdmin)
+  end
+
   def update_court_date?
+    user.casa_admin? || user.supervisor?
+  end
+
+  def update_hearing_type?
+    user.casa_admin? || user.supervisor?
+  end
+
+  def update_judge?
     user.casa_admin? || user.supervisor?
   end
 
@@ -53,14 +65,15 @@ class CasaCasePolicy
   def permitted_attributes
     common_attrs = [
       :court_report_submitted,
+      :court_report_status,
       casa_case_contact_types_attributes: [:contact_type_id]
     ]
 
     case @user
     when CasaAdmin
-      common_attrs.concat(%i[case_number birth_month_year_youth court_date court_report_due_date])
+      common_attrs.concat(%i[case_number birth_month_year_youth court_date court_report_due_date hearing_type_id judge_id])
     when Supervisor
-      common_attrs.concat(%i[court_date court_report_due_date])
+      common_attrs.concat(%i[court_date court_report_due_date hearing_type_id judge_id])
     else
       common_attrs
     end
