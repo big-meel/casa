@@ -31,30 +31,34 @@
   <td>
     <span class="mobile-label">Creator</span>
     <% if policy(contact).edit? %>
-      <% if contact.creator&.supervisor? %>
-        <%= link_to "#{contact.creator&.display_name} ", edit_supervisor_path(current_user) %>
-      <% elsif contact.creator&.casa_admin? %>
-        <%= link_to "#{contact.creator&.display_name} ", edit_users_path %>
+      <% if current_user.volunteer? %>
+        <%= contact.creator&.decorate.name %>
       <% else %>
-        <%= link_to "#{contact.creator&.display_name} ", edit_volunteer_path(contact.creator) %>
+        <% if contact.creator&.supervisor? %>
+          <%= link_to contact.creator&.decorate.name, edit_supervisor_path(current_user) %>
+        <% elsif contact.creator&.casa_admin? %>
+          <%= link_to contact.creator&.decorate.name, edit_users_path %>
+        <% else %>
+          <%= link_to contact.creator&.decorate.name, edit_volunteer_path(contact.creator) %>
+        <% end %>
       <% end %>
     <% else %>
-      <%= contact.creator&.display_name %>
+      <%= contact.creator&.decorate.name %>
     <% end %>
   </td>
   <td class="read-more">
     <span class="mobile-label">Notes</span>
     <%- if contact.notes && contact.notes.length > CaseContactDecorator::NOTES_WORD_LIMIT %>
       <div class="limited-notes" style="display: block;">
-        <%= contact.decorate.notes %>
+        <%= simple_format(contact.decorate.limited_notes) %>
         <span><a role="button" href="#" onClick="moreText(event)">Read more</a></span>
       </div>
       <div class="full-notes" style="display: none;">
-        <%= contact.notes %>
+        <%= simple_format(contact.decorate.full_notes) %>
         <span><a role="button" href="#" onClick="lessText(event)">Hide</a></span>
       </div>
     <%- else %>
-      <%= contact.notes %>
+      <%= simple_format(contact.decorate.full_notes) %>
     <%- end %>
   </td>
   <td>
