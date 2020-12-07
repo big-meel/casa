@@ -6,34 +6,25 @@ class CaseContactPolicy
     @record = record
   end
 
-  def index?
-    _is_creator_or_casa_admin?
-  end
-
-  def show?
-    _is_creator_or_casa_admin?
-  end
-
-  def create?
-    _is_creator_or_casa_admin?
-  end
-
   def new?
-    # Everyone should be allowed to create a case_contact
+    # Everyone is allowed to create a case_contact
     true
   end
 
-  def update?
-    _is_creator_or_supervisor_or_casa_admin?
+  def _is_creator_or_casa_admin?
+    _is_admin? || _is_creator?
   end
 
-  def edit?
-    _is_creator_or_supervisor_or_casa_admin?
+  def _is_creator_or_supervisor_or_casa_admin?
+    _is_admin? || _is_creator? || _is_creator_supervisor?
   end
 
-  def destroy?
-    _is_creator_or_casa_admin?
-  end
+  alias_method :index?, :_is_creator_or_casa_admin?
+  alias_method :show?, :_is_creator_or_casa_admin?
+  alias_method :create?, :_is_creator_or_casa_admin?
+  alias_method :destroy?, :_is_creator_or_casa_admin?
+  alias_method :update?, :_is_creator_or_supervisor_or_casa_admin?
+  alias_method :edit?, :_is_creator_or_supervisor_or_casa_admin?
 
   class Scope
     attr_reader :user, :scope
@@ -45,12 +36,10 @@ class CaseContactPolicy
 
     def resolve
       case @user
-      when CasaAdmin # scope.in_casa_administered_by(@user)
+      when CasaAdmin, Supervisor # scope.in_casa_administered_by(@user)
         scope.all
       when Volunteer
         scope.where(casa_case: CasaCase.actively_assigned_to(@user), creator: @user)
-      when Supervisor
-        scope.all
       else
         raise "unrecognized user type #{@user.type}"
       end
@@ -58,14 +47,6 @@ class CaseContactPolicy
   end
 
   private
-
-  def _is_creator_or_casa_admin?
-    _is_admin? || _is_creator?
-  end
-
-  def _is_creator_or_supervisor_or_casa_admin?
-    _is_admin? || _is_creator? || _is_creator_supervisor?
-  end
 
   def _is_admin?
     user.casa_admin?

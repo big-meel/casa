@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_08_142333) do
+ActiveRecord::Schema.define(version: 2020_11_23_112651) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,7 +41,6 @@ ActiveRecord::Schema.define(version: 2020_11_08_142333) do
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_all_casa_admins_on_email", unique: true
@@ -64,7 +63,6 @@ ActiveRecord::Schema.define(version: 2020_11_08_142333) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "casa_org_id", null: false
     t.datetime "birth_month_year_youth"
-    t.boolean "court_report_submitted", default: false, null: false
     t.datetime "court_date"
     t.datetime "court_report_due_date"
     t.bigint "hearing_type_id"
@@ -73,9 +71,15 @@ ActiveRecord::Schema.define(version: 2020_11_08_142333) do
     t.datetime "court_report_submitted_at"
     t.integer "court_report_status", default: 0
     t.index ["casa_org_id"], name: "index_casa_cases_on_casa_org_id"
-    t.index ["case_number"], name: "index_casa_cases_on_case_number", unique: true
+    t.index ["case_number", "casa_org_id"], name: "index_casa_cases_on_case_number_and_casa_org_id", unique: true
     t.index ["hearing_type_id"], name: "index_casa_cases_on_hearing_type_id"
     t.index ["judge_id"], name: "index_casa_cases_on_judge_id"
+  end
+
+  create_table "casa_cases_emancipation_options", id: false, force: :cascade do |t|
+    t.bigint "casa_case_id", null: false
+    t.bigint "emancipation_option_id", null: false
+    t.index ["casa_case_id", "emancipation_option_id"], name: "index_cases_options_on_case_id_and_option_id", unique: true
   end
 
   create_table "casa_org_logos", force: :cascade do |t|
@@ -151,6 +155,23 @@ ActiveRecord::Schema.define(version: 2020_11_08_142333) do
     t.index ["contact_type_group_id"], name: "index_contact_types_on_contact_type_group_id"
   end
 
+  create_table "emancipation_categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "mutually_exclusive", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_emancipation_categories_on_name", unique: true
+  end
+
+  create_table "emancipation_options", force: :cascade do |t|
+    t.bigint "emancipation_category_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["emancipation_category_id", "name"], name: "index_emancipation_options_on_emancipation_category_id_and_name", unique: true
+    t.index ["emancipation_category_id"], name: "index_emancipation_options_on_emancipation_category_id"
+  end
+
   create_table "hearing_types", force: :cascade do |t|
     t.bigint "casa_org_id", null: false
     t.string "name", null: false
@@ -194,7 +215,6 @@ ActiveRecord::Schema.define(version: 2020_11_08_142333) do
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "casa_org_id", null: false
@@ -230,11 +250,14 @@ ActiveRecord::Schema.define(version: 2020_11_08_142333) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "casa_cases", "casa_orgs"
+  add_foreign_key "casa_cases_emancipation_options", "casa_cases"
+  add_foreign_key "casa_cases_emancipation_options", "emancipation_options"
   add_foreign_key "casa_org_logos", "casa_orgs"
   add_foreign_key "case_assignments", "casa_cases"
   add_foreign_key "case_assignments", "users", column: "volunteer_id"
   add_foreign_key "case_contacts", "casa_cases"
   add_foreign_key "case_contacts", "users", column: "creator_id"
+  add_foreign_key "emancipation_options", "emancipation_categories"
   add_foreign_key "judges", "casa_orgs"
   add_foreign_key "past_court_dates", "casa_cases"
   add_foreign_key "supervisor_volunteers", "users", column: "supervisor_id"

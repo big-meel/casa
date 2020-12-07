@@ -7,6 +7,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/24f3bb10db6afac417e2/test_coverage)](https://codeclimate.com/github/rubyforgood/casa/test_coverage)
 [![View performance data on Skylight](https://badges.skylight.io/status/tFh7xrs3Qnaf.svg?token=1C-Q7p8jEFlG7t69Yl5DaJwa-ipWI8gLw9wLJf53xmQ)](https://www.skylight.io/app/applications/tFh7xrs3Qnaf)
 [![Known Vulnerabilities](https://snyk.io/test/github/rubyforgood/casa/badge.svg)](https://snyk.io/test/github/rubyforgood/casa)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/rubyforgood/casa.svg)](http://isitmaintained.com/project/rubyforgood/casa "Average time to resolve an issue")
 
 CASA (Court Appointed Special Advocate) is a role fulfilled by a trained volunteer sworn into a county-level juvenile dependency court system to advocate on behalf of a youth in the corresponding county's foster care system. CASA is also the namesake role of the national organization, CASA, which exists to cultivate and supervise volunteers carrying out this work – with county level chapters (operating relatively independently of each other) across the country.
 
@@ -123,6 +124,10 @@ Test coverage is run by simplecov on all builds and aggregated by CodeClimate
 
 If you have any troubles running tests, check out the files in `.github/workflow/` which is what makes the CI build run.
 
+If additional work arises from your commit that is outside the scope of the issue it resolves, please open a new issue and either:
+- assign it to yourself if you'd like to take it on
+- or add it to the to-do column without an assignee so someone else can pick up this new issue.
+
 **Local email**
 
 We are using [Letter Opener](https://github.com/ryanb/letter_opener) in
@@ -188,6 +193,10 @@ See `db/seeds` for seed data. Test data includes the below
 1. supervisor1@example.com / 123456 https://\<URL\>.herokuapp.com/
 1. casa_admin1@example.com / 123456 https://\<URL\>.herokuapp.com/
 1. allcasaadmin@example.com / 123456 https://\<URL\>.herokuapp.com/all_casa_admins/sign_in
+
+In the emails listed above, the number `1` corresponds to a `casa_org_id`. To log in to a different `casa_org`'s instance, change the `casa_org_id` number in the email, and add a hyphen and numerical value to the end. 
+
+Example: To log into CASA Org 2's instance, use the following email: casa_admin2-1@example.com. In this example, the number `2` corresponds to the `casa_org`, and the number `1` corresponds to the user. 
 
 ### QA environment
 

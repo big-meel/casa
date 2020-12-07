@@ -14,9 +14,7 @@ class UserPolicy
     user.casa_admin? || user.supervisor?
   end
 
-  def activate?
-    @user.casa_admin? || @user.supervisor?
-  end
+  alias_method :activate?, :unassign_case?
 
   def deactivate?
     activate?
@@ -30,6 +28,10 @@ class UserPolicy
     update_supervisor_email?
   end
 
+  def edit_name?(viewed_user)
+    user.casa_admin? || viewed_user == user
+  end
+
   class Scope
     attr_reader :user, :scope
 
@@ -40,12 +42,10 @@ class UserPolicy
 
     def resolve
       case user
-      when CasaAdmin # scope.in_casa_administered_by(user)
+      when CasaAdmin, Supervisor # TODO scope.in_casa_administered_by(user)
         scope.all
       when Volunteer
         scope.where(id: user.id)
-      when Supervisor
-        scope.all
       else
         raise "unrecognized role #{@user.type}"
       end
@@ -53,12 +53,10 @@ class UserPolicy
 
     def edit?
       case user
-      when CasaAdmin # scope.in_casa_administered_by(user)
+      when CasaAdmin, Supervisor # TODO scope.in_casa_administered_by(user)
         scope.all
       when Volunteer
         scope.where(id: user.id)
-      when Supervisor
-        scope.all
       else
         raise "unrecognized role #{@user.type}"
       end
